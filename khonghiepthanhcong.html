@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chọn Số Ngẫu Nhiên Có Hai Chữ Số (00-99)</title>
+    
+    <style>
+        /* --- CSS: Định dạng Giao diện --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff; 
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #1e90ff; 
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        /* Khối hiển thị số */
+        #randomNumberDisplay {
+            font-size: 5em; /* Tăng cỡ chữ để hiển thị rõ 00 */
+            font-weight: bold;
+            color: #d9534f; 
+            padding: 20px;
+            margin: 20px 0;
+            border: 4px dashed #ffc107; 
+            border-radius: 8px;
+            min-height: 100px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease-out;
+            letter-spacing: 5px; /* Tăng khoảng cách ký tự để giống như một số 2 chữ số */
+        }
+        
+        /* Hiệu ứng khi số được tạo mới */
+        .highlight {
+            animation: pulse 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Nút bấm */
+        button {
+            background-color: #1e90ff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px #1c86ee;
+        }
+
+        button:hover {
+            background-color: #007bff;
+        }
+        
+        button:active {
+            box-shadow: 0 2px #1c86ee;
+            transform: translateY(2px);
+        }
+
+        p.note {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Chọn Số Ngẫu Nhiên</h1>
+        
+        <p class="note">Phạm vi: **Từ 00 đến 99**</p>
+
+        <div id="randomNumberDisplay">
+            00
+        </div>
+        
+        <button onclick="generateRandomNumber()">Tạo Số Mới</button>
+        
+    </div>
+
+    <script>
+        /* --- JavaScript: Logic Chọn Số Ngẫu Nhiên và Định dạng --- */
+
+        /**
+         * Hàm tạo số ngẫu nhiên trong khoảng [0, 99]
+         * và định dạng thành chuỗi 2 chữ số (ví dụ: 5 -> "05")
+         */
+        function generateRandomNumber() {
+            
+            const min = 0;
+            const max = 99;
+            
+            // 1. Tính toán số nguyên ngẫu nhiên
+            const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+
+            // 2. Định dạng số thành chuỗi 2 ký tự (thêm số 0 vào đầu nếu cần)
+            // Sử dụng padStart(2, '0')
+            const formattedNumber = String(randomNumber).padStart(2, '0');
+
+            const displayElement = document.getElementById('randomNumberDisplay');
+            
+            // 3. Hiển thị số ra giao diện
+            displayElement.textContent = formattedNumber;
+            
+            // 4. Thêm hiệu ứng nổi bật (highlight)
+            displayElement.classList.remove('highlight');
+            setTimeout(() => {
+                displayElement.classList.add('highlight');
+            }, 10);
+        }
+
+        // Tạo số đầu tiên ngay khi trang được tải
+        window.onload = generateRandomNumber; 
+    </script>
+</body>
+</html>
