@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 Công Cụ Tra Cứu Nghiên Cứu Học Thuật</title>
+    
+    <style>
+        /* --- CSS: Định dạng và Giao diện --- */
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #28a745;
+            --background-color: #f4f7f8;
+            --card-background: #ffffff;
+            --border-color: #e9ecef;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Header */
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Container Chính */
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Thanh bên (Sidebar) */
+        .sidebar {
+            width: 280px;
+            padding: 20px;
+            margin-right: 25px;
+            background-color: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        .range-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 3. Yêu Cầu Giao Diện: Khu vực Kết quả */
+        .results-area {
+            flex-grow: 1;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Ô Tìm kiếm chính */
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        #search-query {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid var(--primary-color);
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .search-box button:hover {
+            background-color: #1e7e34;
+        }
+
+        .sort-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #e9f5ff;
+            border-radius: 4px;
+        }
+        
+        .sort-bar select {
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* 4.B Hiển thị Kết quả: Danh sách */
+        .result-item {
+            background-color: var(--card-background);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .result-item h4 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        
+        .result-item h4 a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .result-item h4 a:hover {
+            text-decoration: underline;
+        }
+        
+        .result-item p {
+            margin: 5px 0;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .result-item .meta {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 8px;
+        }
+        
+        .result-item .abstract-snippet {
+            margin-top: 10px;
+            border-left: 3px solid #ccc;
+            padding-left: 10px;
+            font-style: italic;
+        }
+
+        /* 4.B Trang Chi tiết (Mô phỏng Modal) */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 80%; 
+            max-width: 800px;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .modal-content h2 {
+            color: var(--primary-color);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        .modal-content .abstract-full {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            line-height: 1.6;
+        }
+        
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-footer a {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .modal-footer a:hover {
+            background-color: #c82333;
+        }
+
+        /* 5. Yêu cầu Kỹ thuật: Responsive */
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            #search-query {
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+
+            .search-box button {
+                border-radius: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>AcademiaSearch 🔬</h1>
+            <div class="nav">
+                <a href="#">Trang chủ</a>
+                <a href="#">Giới thiệu</a>
+                <a href="#">Liên hệ</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>Bộ Lọc Nghiên Cứu</h3>
+            <button onclick="applyFilters()" style="background-color: #ffc107; color: #333; width: 100%; border: none; padding: 10px; border-radius: 4px; cursor: pointer; margin-bottom: 15px;">Áp dụng Bộ lọc</button>
+            <div class="filter-group">
+                <label>Phạm vi Năm Xuất Bản:</label>
+                <div class="range-inputs">
+                    <input type="number" id="year-min" placeholder="Từ năm" min="1900" max="2050" value="2020">
+                    <input type="number" id="year-max" placeholder="Đến năm" min="1900" max="2050" value="2025">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label for="type-filter">Loại Tài Liệu:</label>
+                <select id="type-filter">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Journal">Tạp chí khoa học</option>
+                    <option value="Conference">Kỷ yếu Hội thảo</option>
+                    <option value="Thesis">Luận văn/Luận án</option>
+                    <option value="Book">Sách</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="field-filter">Lĩnh vực:</label>
+                <select id="field-filter">
+                    <option value="">-- Tất cả --</option>
+                    <option value="IT">Công nghệ thông tin</option>
+                    <option value="Medicine">Y học</option>
+                    <option value="Economics">Kinh tế</option>
+                    <option value="Sociology">Xã hội học</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="results-area">
+            <div class="search-box">
+                <input type="text" id="search-query" placeholder="Nhập từ khóa (Tiêu đề, Tác giả, Abstract)">
+                <button onclick="performSearch()">Tìm kiếm</button>
+            </div>
+            
+            <div class="sort-bar">
+                <p style="margin: 0;">Tìm thấy <span id="count-number" style="color: var(--primary-color);">0</span> kết quả.</p>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="sort-by">Sắp xếp theo:</label>
+                    <select id="sort-by" onchange="applyFilters()">
+                        <option value="relevance">Độ liên quan</option>
+                        <option value="year_desc">Năm (Mới nhất)</option>
+                        <option value="author_asc">Tác giả (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="results-list">
+                </div>
+        </div>
+    </div>
+    
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p><strong>Tác giả:</strong> <span id="modal-authors"></span></p>
+            <p><strong>Nguồn:</strong> <span id="modal-source"></span> (<span id="modal-year"></span>)</p>
+            <h3>Tóm tắt (Abstract)</h3>
+            <div class="abstract-full" id="modal-abstract"></div>
+            <div class="modal-footer">
+                <a id="modal-link" href="#" target="_blank">Xem Tài liệu Gốc &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- JavaScript: Logic Tìm kiếm, Lọc và Hiển thị --- */
+
+        // 6. Dữ liệu Mô phỏng (mockData)
+        const mockData = [
+            { id: 1, title: "Deep Reinforcement Learning for Autonomous Drone Navigation", authors: "J. Smith, M. Lee", year: 2024, source: "IEEE Transactions on Robotics", type: "Journal", field: "IT", abstract_snippet: "Nghiên cứu ứng dụng học tăng cường sâu để điều hướng drone...", abstract_full: "Nghiên cứu này đề xuất một kiến trúc học tăng cường sâu mới để cải thiện khả năng điều hướng và tránh chướng ngại vật của drone tự hành trong môi trường phức tạp và không xác định. Kết quả cho thấy hiệu suất vượt trội so với các phương pháp truyền thống.", link_doi: "https://doi.org/10.1109/TRO.2024.345678" },
+            { id: 2, title: "Economic Impact of COVID-19 on Global Supply Chains", authors: "A. Chen, B. Kim", year: 2022, source: "World Economics Conference Proceedings", type: "Conference", field: "Economics", abstract_snippet: "Phân tích định lượng về sự gián đoạn chuỗi cung ứng toàn cầu...", abstract_full: "Bài báo này cung cấp phân tích định lượng về mức độ và tính chất của sự gián đoạn chuỗi cung ứng toàn cầu do đại dịch COVID-19 gây ra. Các tác giả đưa ra mô hình dự báo phục hồi kinh tế dựa trên chỉ số thương mại quốc tế.", link_doi: "https://doi.org/10.1016/j.glosec.2022.01.005" },
+            { id: 3, title: "Early Detection of Alzheimer's Disease using MRI and AI", authors: "R. Johnson, L. Miller", year: 2025, source: "The Lancet Neurology", type: "Journal", field: "Medicine", abstract_snippet: "Sử dụng trí tuệ nhân tạo để phát hiện sớm bệnh Alzheimer...", abstract_full: "Chúng tôi đã phát triển một thuật toán Trí tuệ Nhân tạo mới dựa trên mạng nơ-ron tích chập (CNN) để phân tích hình ảnh cộng hưởng từ (MRI), đạt được độ chính xác cao trong việc phát hiện các dấu hiệu sớm của bệnh Alzheimer.", link_doi: "https://doi.org/10.1016/S1474-4422(25)00123-X" },
+            { id: 4, title: "A Study on Social Media and Youth Mental Health", authors: "S. Nguyen, D. Tran", year: 2023, source: "International Journal of Sociology", type: "Thesis", field: "Sociology", abstract_snippet: "Nghiên cứu về mối liên hệ giữa mạng xã hội và sức khỏe tâm thần vị thành niên...", abstract_full: "Luận văn này điều tra mối liên hệ phức tạp giữa việc sử dụng mạng xã hội và các vấn đề sức khỏe tâm thần ở thanh thiếu niên thông qua khảo sát và phỏng vấn chuyên sâu.", link_doi: "https://research.university.edu/thesis/2023/nguyen_social_media" },
+            { id: 5, title: "Foundations of Modern Cryptography", authors: "C. G. M. D. Rivas", year: 2020, source: "MIT Press", type: "Book", field: "IT", abstract_snippet: "Cuốn sách giáo trình cơ bản về mật mã học hiện đại...", abstract_full: "Đây là một tài liệu toàn diện bao gồm các nguyên tắc cơ bản và nâng cao của mật mã học hiện đại, bao gồm mã hóa khóa công khai, hàm băm và chữ ký số.", link_doi: "https://books.mitpress.edu/9780262044234" }
+        ];
+
+        let displayData = [...mockData]; // Dữ liệu đang hiển thị (sau khi tìm kiếm/lọc)
+
+        // Ánh xạ tên loại tài liệu
+        function getTypeName(typeCode) {
+            switch (typeCode) {
+                case 'Journal': return 'Tạp chí khoa học';
+                case 'Conference': return 'Kỷ yếu Hội thảo';
+                case 'Thesis': return 'Luận văn/Luận án';
+                case 'Book': return 'Sách';
+                default: return 'Khác';
+            }
+        }
+
+        // --- 4.B Hiển thị Kết quả: Danh sách ---
+        function renderResults(data) {
+            const resultsList = document.getElementById('results-list');
+            const countNumber = document.getElementById('count-number');
+            resultsList.innerHTML = '';
+            
+            if (data.length === 0) {
+                resultsList.innerHTML = '<p style="text-align: center; padding: 30px; font-size: 1.1em;">Không tìm thấy kết quả nào phù hợp với tiêu chí tìm kiếm và lọc.</p>';
+                countNumber.textContent = 0;
+                return;
+            }
+
+            countNumber.textContent = data.length;
+
+            data.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'result-item';
+                itemDiv.innerHTML = `
+                    <h4><a href="#" onclick="showDetails(${item.id}); return false;">${item.title}</a></h4>
+                    <p class="meta"><strong>Tác giả:</strong> ${item.authors} | <strong>Năm:</strong> ${item.year} | <strong>Nguồn:</strong> ${item.source} (${getTypeName(item.type)})</p>
+                    <p class="abstract-snippet">${item.abstract_snippet}...</p>
+                `;
+                resultsList.appendChild(itemDiv);
+            });
+        }
+        
+        // --- 4.B Hiển thị Kết quả: Trang Chi tiết (Modal) ---
+        function showDetails(id) {
+            const item = mockData.find(d => d.id === id);
+            if (!item) return;
+
+            document.getElementById('modal-title').textContent = item.title;
+            document.getElementById('modal-authors').textContent = item.authors;
+            document.getElementById('modal-source').textContent = item.source + ` (${getTypeName(item.type)})`;
+            document.getElementById('modal-year').textContent = item.year;
+            document.getElementById('modal-abstract').textContent = item.abstract_full;
+            document.getElementById('modal-link').href = item.link_doi;
+
+            document.getElementById('details-modal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('details-modal').style.display = 'none';
+        }
+
+        // Đóng modal khi click ra ngoài
+        window.onclick = function(event) {
+            const modal = document.getElementById('details-modal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // --- 4.A Tìm kiếm cơ bản ---
+        function performSearch() {
+            const query = document.getElementById('search-query').value.toLowerCase().trim();
+            
+            let searchedData = mockData.filter(item => {
+                const searchString = `${item.title} ${item.authors} ${item.abstract_snippet} ${item.abstract_full}`.toLowerCase();
+                return searchString.includes(query);
+            });
+
+            // Sau khi tìm kiếm, áp dụng luôn các bộ lọc hiện tại
+            applyFilters(searchedData); 
+        }
+
+        // --- 4.A Lọc nâng cao & Sắp xếp ---
+        function applyFilters(data = mockData) {
+            const query = document.getElementById('search-query').value.toLowerCase().trim();
+            const yearMin = parseInt(document.getElementById('year-min').value);
+            const yearMax = parseInt(document.getElementById('year-max').value);
+            const typeFilter = document.getElementById('type-filter').value;
+            const fieldFilter = document.getElementById('field-filter').value;
+            const sortBy = document.getElementById('sort-by').value;
+
+            // 1. Tìm kiếm (Áp dụng lại logic tìm kiếm nếu có thay đổi lọc)
+            let filtered = data.filter(item => {
+                // Áp dụng lại tìm kiếm theo từ khóa
+                const searchString = `${item.title} ${item.authors} ${item.abstract_snippet} ${item.abstract_full}`.toLowerCase();
+                const passSearch = searchString.includes(query);
+                
+                // 2. Lọc theo Năm
+                const passYear = item.year >= yearMin && item.year <= yearMax;
+
+                // 3. Lọc theo Loại
+                const passType = !typeFilter || item.type === typeFilter;
+
+                // 4. Lọc theo Lĩnh vực
+                const passField = !fieldFilter || item.field === fieldFilter;
+
+                return passSearch && passYear && passType && passField;
+            });
+            
+            // 5. Sắp xếp
+            if (sortBy === 'year_desc') {
+                filtered.sort((a, b) => b.year - a.year);
+            } else if (sortBy === 'author_asc') {
+                filtered.sort((a, b) => a.authors.localeCompare(b.authors));
+            } 
+            // 'relevance' (mặc định) không cần sắp xếp thêm
+
+            displayData = filtered;
+            renderResults(displayData);
+        }
+
+        // Tải trang lần đầu: hiển thị tất cả dữ liệu
+        window.onload = function() {
+            // Thiết lập giá trị mặc định cho năm
+            document.getElementById('year-min').value = 2020;
+            document.getElementById('year-max').value = new Date().getFullYear(); 
+            applyFilters(mockData);
+        };
+        
+    </script>
+</body>
+</html>
