@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đoán Số May Mắn (1-100)</title>
+    
+    <style>
+        /* --- 3. Yêu Cầu Giao Diện (UI/UX) & 5. Yêu cầu Kỹ thuật (CSS) --- */
+        :root {
+            --color-primary: #3c9d9b; /* Teal */
+            --color-secondary: #ff7f50; /* Coral */
+            --color-success: #5cb85c;
+            --color-danger: #d9534f;
+            --color-background: #f4f7f8;
+            --color-text: #333;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Header */
+        header {
+            width: 100%;
+            background-color: var(--color-primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Nút "Chơi Lại" */
+        .again-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--color-secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .again-button:hover {
+            background-color: #ff6347;
+        }
+        
+        /* 3. Yêu Cầu Giao Diện: Khối "Số Bí Mật" */
+        .secret-number {
+            background-color: var(--color-text);
+            color: white;
+            font-size: 4em;
+            padding: 20px 30px;
+            border-radius: 8px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            margin-top: 100px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 80px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 800px;
+            margin-top: 150px; /* Đẩy xuống khỏi Header và Secret Number */
+        }
+        
+        .left-panel, .right-panel {
+            width: 45%;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Ô Nhập liệu */
+        #guess-input {
+            width: 100px;
+            padding: 15px;
+            font-size: 1.5em;
+            text-align: center;
+            border: 3px solid var(--color-primary);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .guess-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* 3. Yêu Cầu Giao Diện: Nút "Đoán" */
+        #guess-button {
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        #guess-button:hover:not(:disabled) {
+            background-color: #34807e;
+        }
+        
+        #guess-button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Khu vực Thông báo */
+        .message-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            min-height: 50px;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* 3. Yêu Cầu Giao Diện: Khu vực Chính (Score) */
+        .stats-box {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            background-color: #fff3cd; /* Light warning color */
+            border: 1px solid #ffeeba;
+            margin-top: 20px;
+        }
+
+        .stats-box p {
+            margin: 5px 0;
+        }
+
+        /* Hiệu ứng khi Thắng */
+        body.win {
+            background-color: var(--color-success);
+        }
+        body.win header {
+            background-color: #4CAF50;
+        }
+        body.win .secret-number {
+            width: 150px;
+            background-color: #fff;
+            color: var(--color-success);
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            .main-content {
+                flex-direction: column;
+                margin-top: 180px;
+            }
+            .left-panel, .right-panel {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+            .again-button {
+                position: static;
+                margin: 10px auto;
+                display: block;
+            }
+            .secret-number {
+                margin-top: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Đoán Số May Mắn (1-100)</h1>
+        <p style="font-size: 0.9em; margin-top: 5px;">Thử đoán số bí mật trong khoảng từ 1 đến 100!</p>
+        <button class="again-button" onclick="initGame()">🔄 Chơi Lại</button>
+        <div class="secret-number" id="secret-box">?</div>
+    </header>
+
+    <main class="main-content">
+        <section class="left-panel">
+            <div class="guess-controls">
+                <input type="number" id="guess-input" min="1" max="100" placeholder="Số đoán">
+                <button id="guess-button" onclick="checkGuess()">Đoán</button>
+            </div>
+        </section>
+
+        <section class="right-panel">
+            <div class="message-box" id="message">
+                Bắt đầu đoán bằng cách nhập số bên trái!
+            </div>
+            <div class="stats-box">
+                <p>Điểm hiện tại: <span id="score">20</span></p>
+                <p>Điểm cao nhất: <span id="high-score">0</span></p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        /* --- 4. Các Tính Năng Bắt buộc (Chức năng & Logic Trò chơi) --- */
+
+        let secretNumber;
+        let score;
+        let highScore = 0;
+        
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('high-score');
+        const messageElement = document.getElementById('message');
+        const secretBoxElement = document.getElementById('secret-box');
+        const guessInput = document.getElementById('guess-input');
+        const guessButton = document.getElementById('guess-button');
+        const body = document.body;
+
+        // 5. Yêu cầu Kỹ thuật (Tùy chọn nâng cao): Load High Score từ LocalStorage
+        if (localStorage.getItem('guessGameHighScore')) {
+            highScore = parseInt(localStorage.getItem('guessGameHighScore'));
+            highScoreElement.textContent = highScore;
+        }
+
+        // --- 4.A Khởi tạo Trò chơi & 4.C Chức năng Chơi Lại ---
+        function initGame() {
+            // 4.A Chọn số ngẫu nhiên từ 1 đến 100
+            secretNumber = Math.trunc(Math.random() * 100) + 1;
+            
+            // 4.A Thiết lập Điểm
+            score = 20;
+            scoreElement.textContent = score;
+
+            // 4.C Đặt lại giao diện
+            messageElement.textContent = 'Bắt đầu đoán bằng cách nhập số bên trái!';
+            secretBoxElement.textContent = '?';
+            secretBoxElement.style.width = '80px';
+            guessInput.value = '';
+            
+            // 4.C Kích hoạt lại nút & ô nhập liệu
+            guessInput.disabled = false;
+            guessButton.disabled = false;
+            
+            // Đặt lại màu nền (nếu trước đó thắng)
+            body.classList.remove('win');
+            body.style.backgroundColor = 'var(--color-background)';
+            document.querySelector('header').style.backgroundColor = 'var(--color-primary)';
+        }
+
+        // --- 4.B Logic Người dùng: Xử lý Lượt đoán ---
+        function displayMessage(message) {
+            messageElement.textContent = message;
+        }
+
+        function checkGuess() {
+            // 4.B Nhập liệu
+            const guess = Number(guessInput.value);
+
+            // 4.B Kiểm tra Hợp lệ
+            if (!guess || guess < 1 || guess > 100) {
+                displayMessage('⛔ Vui lòng nhập số hợp lệ từ 1 đến 100!');
+                return;
+            }
+
+            // 4.B Xử lý Lượt đoán
+            // 1. Đoán đúng
+            if (guess === secretNumber) {
+                displayMessage('🎉 Tuyệt vời! Bạn đã đoán đúng!');
+                
+                // Hiển thị SecretNumber
+                secretBoxElement.textContent = secretNumber;
+                secretBoxElement.style.width = '150px';
+                
+                // Đổi màu nền (Visual effect)
+                body.classList.add('win');
+                body.style.backgroundColor = 'var(--color-success)';
+                document.querySelector('header').style.backgroundColor = '#4CAF50';
+                
+                // Vô hiệu hóa controls
+                guessInput.disabled = true;
+                guessButton.disabled = true;
+
+                // Cập nhật High Score
+                if (score > highScore) {
+                    highScore = score;
+                    highScoreElement.textContent = highScore;
+                    localStorage.setItem('guessGameHighScore', highScore); // Lưu vào LocalStorage
+                }
+            
+            // 2. Đoán sai (Chỉ xử lý khi điểm > 1)
+            } else if (score > 1) {
+                
+                // Cập nhật Điểm hiện tại
+                score--;
+                scoreElement.textContent = score;
+
+                // Cung cấp gợi ý
+                if (guess > secretNumber) {
+                    displayMessage('📈 Quá cao!');
+                } else {
+                    displayMessage('📉 Quá thấp!');
+                }
+
+            // 3. Hết điểm/Thua cuộc
+            } else {
+                score = 0;
+                scoreElement.textContent = score;
+                displayMessage('😭 Bạn đã thua cuộc! Game Over!');
+                
+                // Hiển thị SecretNumber
+                secretBoxElement.textContent = secretNumber;
+
+                // Vô hiệu hóa controls
+                guessInput.disabled = true;
+                guessButton.disabled = true;
+            }
+        }
+        
+        // Khởi động trò chơi khi trang được tải
+        window.onload = initGame;
+        
+        // Cho phép nhấn Enter để đoán
+        guessInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !guessButton.disabled) {
+                checkGuess();
+            }
+        });
+
+    </script>
+</body>
+</html>
